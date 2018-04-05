@@ -20,11 +20,29 @@ int main()
 {
 	int fd;
 	char *str;
+	int check;
 
 	fd = open("file", O_RDONLY);
-	get_next_line(fd, &str);
-	//printf("%s", str);
-	//printf("%c\n", '/');
+	while ((check = get_next_line(fd, &str)))
+	{
+		printf("%d\n", check);
+		printf("%s\n", str);
+		str = NULL;
+	}
+	// get_next_line(fd, &str);
+	// printf("fd: %s\n", str);
+	// int fd1 = open("file1", O_RDONLY);
+	// str = NULL;
+	// get_next_line(fd, &str);
+	// printf("fd: %s\n", str);
+	// str = NULL;
+	// get_next_line(fd1, &str);
+	// printf("fd1: %s\n", str);
+	// str = NULL;
+	// get_next_line(fd1, &str);
+	// printf("fd1: %s\n", str);
+	printf("%d\n", check);
 	close(fd);
+	//close(fd1);
 	return 0;
 }
