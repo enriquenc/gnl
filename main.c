@@ -16,31 +16,20 @@
 #include <fcntl.h>
 #include <stdio.h>
 
-int main()
+int main(int argc, char **argv)
 {
 	int fd;
 	char *str;
 	int check;
 
-	fd = open("file", O_RDONLY);
-	check = get_next_line(fd, &str);
-	printf("%d\n", check);
-	printf("%s\n", str);
-	str = NULL;
-	check = get_next_line(fd, &str);
-	printf("%d\n", check);
-	printf("%s\n", str);
-	str = NULL;
-	check = get_next_line(fd, &str);
-	printf("%d\n", check);
-	printf("%s\n", str);
-	str = NULL;
-	check = get_next_line(fd, &str);
-	printf("%d\n", check);
-	printf("%s\n", str);
-	check = get_next_line(fd, &str);
-	printf("%d\n", check);
-	printf("%s\n", str);
+	argc = 0;
+	fd = open(argv[1], O_RDONLY);
+	while((check = get_next_line(fd, &str)))
+	{
+		//printf("%d\n", check);
+		printf("%s\n", str);
+		str = NULL;
+	}
 	// get_next_line(fd, &str);
 	// printf("fd: %s\n", str);
 	// int fd1 = open("file1", O_RDONLY);
@@ -53,6 +42,7 @@ int main()
 	// str = NULL;
 	// get_next_line(fd1, &str);
 	// printf("fd1: %s\n", str);
+	printf("%d", check);
 	close(fd);
 	//close(fd1);
 	return 0;
