@@ -27,5 +27,6 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		return (NULL);
 	res = ft_strcpy(res, s1);
 	res = ft_strcat(res, s2);
+	free((void *)s1);
 	return (res);
 }

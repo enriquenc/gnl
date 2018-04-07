@@ -11,20 +11,19 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
 
 t_bufer *do_smth(t_bufer **list, int fd)
-{
-    
-    while ((*list) && (*list)->next)
+{   
+    while (*list)
     {
             if((*list)->fd == fd)
                 break;
             (*list) = (*list)->next;
     }
-    if (!(*list) || (*list)->fd != fd)
+    if (!(*list))
     {
-        (*list) = (t_bufer *)malloc(sizeof(t_bufer));
+        if(!(*list = (t_bufer *)malloc(sizeof(t_bufer))))
+            return NULL;
         (*list)->fd = fd;
         (*list)->buf = NULL;
         (*list)->next = NULL;
@@ -35,6 +34,7 @@ t_bufer *do_smth(t_bufer **list, int fd)
 int check_smth(t_bufer **list, char **res, char *buf)
 {
     char *temp;
+    char *pointer;
 
     if (buf == NULL)
         return 0;
@@ -45,8 +45,11 @@ int check_smth(t_bufer **list, char **res, char *buf)
     }
     else
     {
-        (*res) = ft_strjoin(*res, ft_strsub(buf, 0, temp - buf));
-        (*list)->buf = ft_strsub(buf , temp - buf + 1, BUFF_SIZE - (temp - buf) - 1);
+        pointer = ft_strsub(buf, 0, temp - buf);
+        (*res) = ft_strjoin(*res, pointer);
+        (*list)->buf = ft_strsub(buf , temp - buf + 1, BUFF_SIZE);
+        free(pointer);
+        *pointer = 0;
         return 1;
     }
     return 0;
@@ -61,11 +64,19 @@ int get_next_line(const int fd, char **line)
     t_bufer *list;
 
     res = NULL;
-    list = do_smth(&s_list, fd);
+    if (fd < 0 || !(list = do_smth(&s_list, fd)))
+        return (-1);
     if (list->buf)
-        check_smth(&list, &res, list->buf);
+        if(check_smth(&list, &res, list->buf))
+        {
+            *line = res;
+            return (1);
+        }
     while((read_bytes = read(fd, buf, BUFF_SIZE)))
     {
+        if (read_bytes < 0)
+           return (-1);
+        buf[BUFF_SIZE] = '\0';
         if (check_smth(&list, &res, buf))
             break;
     }
