@@ -14,16 +14,28 @@
 
 t_bufer *do_smth(t_bufer **list, int fd)
 {   
-    while (*list)
-    {
-            if((*list)->fd == fd)
-                break;
-            (*list) = (*list)->next;
-    }
     if (!(*list))
     {
         if(!(*list = (t_bufer *)malloc(sizeof(t_bufer))))
             return NULL;
+        (*list)->fd = fd;
+        (*list)->buf = NULL;
+        (*list)->next = NULL;
+        return (*list);
+    }
+    if((*list)->fd == fd)
+        return (*list);
+    while ((*list)->next)
+    {
+            if((*list)->fd == fd)
+                return (*list);
+            (*list) = (*list)->next;
+    }
+    if ((*list)->fd != fd)
+    {
+        if(!((*list)->next = (t_bufer *)malloc(sizeof(t_bufer))))
+            return NULL;
+        (*list) = (*list)->next;
         (*list)->fd = fd;
         (*list)->buf = NULL;
         (*list)->next = NULL;
@@ -47,7 +59,14 @@ int check_smth(t_bufer **list, char **res, char *buf)
     {
         pointer = ft_strsub(buf, 0, temp - buf);
         (*res) = ft_strjoin(*res, pointer);
-        (*list)->buf = ft_strsub(buf , temp - buf + 1, BUFF_SIZE);
+        temp++;
+        if (*temp == '\0')
+            (*list)->buf = NULL;
+        else
+        {
+            temp--;
+            (*list)->buf = ft_strsub(buf , temp - buf + 1, BUFF_SIZE - (temp - buf + 1));
+        }
         free(pointer);
         *pointer = 0;
         return 1;
@@ -59,7 +78,7 @@ int get_next_line(const int fd, char **line)
 {
     char buf[BUFF_SIZE + 1];
     char *res;
-    static t_bufer *s_list;
+    static t_bufer *s_list = NULL;
     int read_bytes;
     t_bufer *list;
 
@@ -76,12 +95,12 @@ int get_next_line(const int fd, char **line)
     {
         if (read_bytes < 0)
            return (-1);
-        buf[BUFF_SIZE] = '\0';
+        buf[read_bytes] = '\0';
         if (check_smth(&list, &res, buf))
             break;
     }
     if (!read_bytes && !res)
-         return 0;
+        return 0;
     *line = res;
     return (1);
 }
